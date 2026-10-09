@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CODEPOLA — Demo de membresía</title>
+<style>
+  :root {
+    --ink: #121212;
+    --gold: #c6a15b;
+    --gold-2: #e7d3a2;
+    --cream: #f4efe6;
+    --card: #1c1c1c;
+    --line: #2c2c2c;
+    --ok: #2f9e6b;
+    --bad: #c4493a;
+    --warn: #b8860b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Calibri, "Segoe UI", sans-serif;
+    background: #0e0e0e;
+    color: #f5f1e8;
+  }
+  button, input, select { font-family: inherit; }
+  .top {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 20px; border-bottom: 1px solid #2a2a2a; position: sticky; top: 0;
+    background: #121212; z-index: 5;
+  }
+  .brand { display: flex; gap: 10px; align-items: center; font-weight: 700; letter-spacing: .04em; }
+  .mark { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; background: #111; }
+  .doors { display: flex; gap: 8px; flex-wrap: wrap; }
+  .doors button, .ghost {
+    background: transparent; color: var(--gold-2); border: 1px solid #3a3326;
+    border-radius: 999px; padding: 8px 14px; cursor: pointer;
+  }
+  .doors button.on { background: var(--gold); color: #1a1a1a; border-color: var(--gold); }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+  .note { color: #b7ad9c; font-size: 14px; margin: 0 0 16px; }
+  .phone {
+    width: min(390px, 100%); margin: 0 auto; background: #0c0c0c;
+    border: 1px solid #3a3326; border-radius: 28px; overflow: hidden;
+    min-height: 720px; box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  }
+  .phone header, .sheet header {
+    padding: 18px 18px 8px; text-align: center;
+  }
+  .card {
+    margin: 12px 16px; border: 1px solid #6d5a32; border-radius: 16px; padding: 16px;
+    background: linear-gradient(180deg, #1a1a1a, #111);
+  }
+  .row { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+  .name { font-size: 22px; margin: 8px 0 4px; }
+  .meta { color: #cbbd9e; font-size: 14px; margin: 2px 0; }
+  .pill { border: 1px solid var(--gold); color: var(--gold); border-radius: 999px; padding: 4px 10px; font-size: 12px; }
+  .pill.bad { border-color: var(--bad); color: #f0b2ab; }
+  .qr {
+    width: 168px; height: 168px; margin: 14px auto; background:
+      repeating-linear-gradient(90deg, #111 0 8px, #f4efe6 8px 16px),
+      repeating-linear-gradient(#111 0 8px, #f4efe6 8px 16px);
+    background-blend-mode: difference;
+    border-radius: 8px; display: grid; place-items: center; color: #111; font-weight: 700;
+  }
+  .actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 0 16px 16px; }
+  .actions button, .primary, .danger {
+    border: 0; border-radius: 12px; padding: 12px 10px; cursor: pointer;
+  }
+  .actions button { background: #1c1c1c; color: var(--gold-2); }
+  .primary { background: var(--gold); color: #1a1a1a; font-weight: 700; width: 100%; }
+  .danger { background: var(--bad); color: white; width: 100%; }
+  .tabs { display: flex; justify-content: space-around; padding: 10px; border-top: 1px solid #2a2a2a; color: #b7ad9c; font-size: 13px; }
+  .tabs span { cursor: pointer; }
+  .tabs span.on { color: var(--gold); }
+  .list { padding: 0 16px 16px; }
+  .item { background: #1c1c1c; border-radius: 12px; padding: 12px; margin-bottom: 8px; }
+  .price { font-size: 42px; color: var(--gold); margin: 4px 0; }
+  .sheet { background: #161616; border: 1px solid #2c2c2c; border-radius: 16px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #2a2a2a; }
+  th { color: #b7ad9c; font-weight: 600; }
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .kpi { background: #1c1c1c; border-radius: 12px; padding: 14px; }
+  .kpi b { display: block; font-size: 26px; color: var(--gold); }
+  label { display: block; color: #b7ad9c; font-size: 13px; margin-top: 10px; }
+  input, select {
+    width: 100%; margin-top: 4px; background: #111; color: white; border: 1px solid #3a3326;
+    border-radius: 10px; padding: 10px;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1.4fr .8fr; gap: 14px; }
+  .hide { display: none; }
+  .ok { color: var(--ok); }
+  .badt { color: #f0b2ab; }
+  .toast {
+    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    background: var(--gold); color: #1a1a1a; padding: 10px 16px; border-radius: 999px; display: none;
+  }
+  @media (max-width: 800px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .kpis { grid-template-columns: 1fr; }
+    table { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="brand"><img class="mark" src="https://pbs.twimg.com/profile_images/834918988442324992/l6IV9rqf.jpg" alt="Logo de CODEPOLA" /> CODEPOLA · Demo</div>
+    <div class="doors">
+      <button id="b-socio" class="on" onclick="show('socio')">Socio</button>
+      <button id="b-admin" onclick="show('admin')">Administración</button>
+      <button id="b-caja" onclick="show('caja')">Lector de caja</button>
+    </div>
+  </div>
+  <main>
+    <p class="note">Demo con datos de ejemplo. Se abre en el teléfono o en la computadora, desde cualquier lugar. El socio no puede cancelar aquí.</p>
+
+    <section id="socio">
+      <div class="phone">
+        <header>
+          <img class="mark" src="https://pbs.twimg.com/profile_images/834918988442324992/l6IV9rqf.jpg" alt="Logo de CODEPOLA" style="width:72px;height:72px;margin:0 auto 6px;display:block" />
+          <div>CODEPOLA</div>
+          <div class="meta">Bienvenido, <span id="hello">María</span></div>
+        </header>
+        <div id="view-inicio">
+          <div class="card">
+            <div class="row">
+              <div>
+                <div class="meta">MIEMBRO</div>
+                <div class="name" id="m-name">María I. Rivera</div>
+                <div class="meta">Socio <b id="m-num">CP-18420</b></div>
+                <div class="meta">Miembro desde 2019 · Trujillo Alto</div>
+              </div>
+              <div class="pill" id="m-pill">ACTIVO</div>
+            </div>
+            <div class="qr" id="qr">QR</div>
+            <div class="meta" style="text-align:center">Válido <span id="secs">48</span> segundos · no se puede prestar</div>
+          </div>
+          <div class="actions">
+            <button onclick="member('caja')">Mostrar en caja</button>
+            <button onclick="member('descuentos')">Descuentos</button>
+            <button onclick="member('ayuda')">Asistencia</button>
+          </div>
+        </div>
+        <div id="view-caja" class="hide list">
+          <div class="qr" style="width:220px;height:220px"></div>
+          <p style="text-align:center">Muéstrelo en caja. El código cambia solo.</p>
+          <button class="primary" onclick="member('inicio')">Cerrar</button>
+        </div>
+        <div id="view-descuentos" class="hide list">
+          <div class="item"><b>Jimboró Martial Arts</b><div class="meta">10% · Río Piedras</div></div>
+          <div class="item"><b>Muebles Limpios Carrero</b><div class="meta">25% · Toa Alta</div></div>
+          <div class="item"><b>Farmacias participantes</b><div class="meta">Hasta 80% · presente la credencial</div></div>
+          <button class="primary" onclick="member('inicio')">Volver</button>
+        </div>
+        <div id="view-gas" class="hide list">
+          <div class="meta">MI GASOLINERA</div>
+          <div class="price">$<span id="m-price">0.89</span> <span style="font-size:16px;color:#cbbd9e">/ litro</span></div>
+          <div class="meta">Regular $<span id="m-regular">1.09</span> · Trujillo Alto · todos los días</div>
+          <p class="meta">Presente el código. El lector escribe el descuento fijo si está al día.</p>
+          <button class="primary" onclick="member('caja')">Generar código</button>
+        </div>
+        <div id="view-ayuda" class="hide list">
+          <div class="item"><b>Asistencia 24/7</b><div class="meta">787-708-8311 · envía su número y su estado</div></div>
+          <div class="item"><b>Oficinas</b><div class="meta">Trujillo Alto · Guayama · Lajas</div></div>
+          <button class="primary" onclick="member('inicio')">Volver</button>
+        </div>
+        <div id="view-cuenta" class="hide list">
+          <div class="item"><b>Teléfono</b><div class="meta">787-555-0142</div></div>
+          <div class="item"><b>Correo</b><div class="meta">maria.rivera@email.com</div></div>
+          <div class="item"><b>Emergencia</b><div class="meta">787-555-0199</div></div>
+          <div class="item"><b>Cancelar membresía</b><div class="meta">No está disponible en la aplicación. Llame al 787-708-8311 o visite Trujillo Alto, Guayama o Lajas.</div></div>
+          <button class="primary" onclick="member('inicio')">Volver</button>
+        </div>
+        <div class="tabs">
+          <span class="on" onclick="member('inicio')">Inicio</span>
+          <span onclick="member('gas')">Gasolinera</span>
+          <span onclick="member('descuentos')">Mapa</span>
+          <span onclick="member('cuenta')">Cuenta</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin" class="hide">
+      <div class="kpis">
+        <div class="kpi"><b>42,180</b>activos</div>
+        <div class="kpi"><b>312</b>en mora</div>
+        <div class="kpi"><b id="scans">86</b>escaneos hoy</div>
+      </div>
+      <div class="grid-2">
+        <div class="sheet">
+          <header class="row" style="padding:14px"><b>Socios</b><span class="meta">Se abre desde cualquier lugar</span></header>
+          <table>
+            <thead><tr><th>Socio</th><th>Número</th><th>Sucursal</th><th>Estado</th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <div>
+          <div class="sheet" style="padding:14px;margin-bottom:12px">
+            <b id="d-name">María I. Rivera</b>
+            <div class="meta" id="d-num">CP-18420 · Trujillo Alto</div>
+            <div class="meta" id="d-state">Activo · miembro desde 2019</div>
+            <p class="meta">Tel. 787-555-0142 · Emergencia 787-555-0199</p>
+            <button class="danger" onclick="toggleMember()">Suspender / reactivar</button>
+            <p class="meta">La baja no se hace aquí por el socio. Un administrador la registra luego de la llamada o la visita.</p>
+          </div>
+          <div class="sheet" style="padding:14px">
+            <b>Precio del combustible</b>
+            <label>Precio regular</label>
+            <input id="in-regular" value="1.09" />
+            <label>Precio de socio</label>
+            <input id="in-member" value="0.89" />
+            <div style="height:10px"></div>
+            <button class="primary" onclick="savePrice()">Guardar precio</button>
+            <p class="meta">Visible en la aplicación al guardar.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="caja" class="hide">
+      <div class="phone">
+        <header>
+          <img class="mark" src="https://pbs.twimg.com/profile_images/834918988442324992/l6IV9rqf.jpg" alt="Logo de CODEPOLA" style="width:72px;height:72px;margin:0 auto 6px;display:block" />
+          <div>LECTOR DE CAJA</div>
+        </header>
+        <div class="list">
+          <div class="item" style="text-align:center">
+            <div id="box-mark" style="font-size:42px">✓</div>
+            <div id="box-title" class="name">Membresía activa</div>
+            <div class="meta" id="box-sub">María I. Rivera · CP-18420</div>
+            <p id="box-msg">Descuento de socio autorizado. Se escribió el código fijo en la caja.</p>
+          </div>
+          <button class="primary" onclick="scan()">Nueva validación</button>
+          <p class="meta">Si el socio está suspendido, el lector no escribe el código fijo.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast">Precio actualizado</div>
+<script>
+const members = [
+  { name: "María I. Rivera", num: "CP-18420", branch: "Trujillo Alto", since: "2019", status: "Activo", phone: "787-555-0142" },
+  { name: "Juan Pérez", num: "CP-00012458", branch: "Trujillo Alto", since: "2016", status: "Activo", phone: "787-555-0101" },
+  { name: "Mariela Rivera", num: "CP-00012459", branch: "Guayama", since: "2018", status: "Mora", phone: "787-555-0102" },
+  { name: "Carlos Ortiz", num: "CP-00012460", branch: "Lajas", since: "2020", status: "Activo", phone: "787-555-0103" },
+  { name: "Laura Soto", num: "CP-00012461", branch: "Trujillo Alto", since: "2017", status: "Activo", phone: "787-555-0104" },
+  { name: "Pedro Quiñones", num: "CP-00012462", branch: "Guayama", since: "2015", status: "Mora", phone: "787-555-0105" }
+];
+let current = 0;
+let secs = 48;
+function show(id) {
+  ["socio","admin","caja"].forEach(k => {
+    document.getElementById(k).classList.toggle("hide", k !== id);
+    document.getElementById("b-" + k).classList.toggle("on", k === id);
+  });
+  if (id === "caja") scan();
+}
+function member(view) {
+  ["inicio","caja","descuentos","gas","ayuda","cuenta"].forEach(v => {
+    document.getElementById("view-" + v).classList.toggle("hide", v !== view);
+  });
+}
+function paintMember() {
+  const m = members[current];
+  document.getElementById("hello").textContent = m.name.split(" ")[0];
+  document.getElementById("m-name").textContent = m.name;
+  document.getElementById("m-num").textContent = m.num;
+  const pill = document.getElementById("m-pill");
+  pill.textContent = m.status.toUpperCase();
+  pill.classList.toggle("bad", m.status !== "Activo");
+  document.getElementById("d-name").textContent = m.name;
+  document.getElementById("d-num").textContent = m.num + " · " + m.branch;
+  document.getElementById("d-state").textContent = m.status + " · miembro desde " + m.since;
+}
+function paintTable() {
+  document.getElementById("tbody").innerHTML = members.map((m, i) =>
+    `<tr onclick="pick(${i})" style="cursor:pointer"><td>${m.name}</td><td>${m.num}</td><td>${m.branch}</td><td class="${m.status === "Activo" ? "ok" : "badt"}">${m.status}</td></tr>`
+  ).join("");
+}
+function pick(i) { current = i; paintMember(); scan(); }
+function toggleMember() {
+  const m = members[current];
+  m.status = m.status === "Activo" ? "Suspendido" : "Activo";
+  paintMember(); paintTable(); scan();
+  toast(m.status === "Activo" ? "Socio reactivado" : "Código apagado");
+}
+function savePrice() {
+  document.getElementById("m-price").textContent = Number(document.getElementById("in-member").value).toFixed(2);
+  document.getElementById("m-regular").textContent = Number(document.getElementById("in-regular").value).toFixed(2);
+  toast("Precio visible en la aplicación");
+}
+function scan() {
+  const m = members[current];
+  const ok = m.status === "Activo";
+  document.getElementById("box-mark").textContent = ok ? "✓" : "✕";
+  document.getElementById("box-title").textContent = ok ? "Membresía activa" : "Descuento no autorizado";
+  document.getElementById("box-sub").textContent = m.name + " · " + m.num;
+  document.getElementById("box-msg").textContent = ok
+    ? "Se escribió el código fijo en la caja."
+    : "No se escribió nada. El cajero cobra el precio regular.";
+  if (ok) document.getElementById("scans").textContent = String(Number(document.getElementById("scans").textContent) + 1);
+}
+function toast(t) {
+  const el = document.getElementById("toast");
+  el.textContent = t; el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 1600);
+}
+setInterval(() => {
+  secs = secs > 1 ? secs - 1 : 48;
+  document.getElementById("secs").textContent = secs;
+  document.getElementById("qr").textContent = "QR " + secs;
+}, 1000);
+paintMember();
+paintTable();
+</script>
+</body>
+</html>
